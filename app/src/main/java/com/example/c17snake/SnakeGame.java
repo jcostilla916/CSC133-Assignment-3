@@ -54,6 +54,9 @@ class SnakeGame extends SurfaceView implements Runnable{
     // And an apple
     private Apple mApple;
 
+    private Typeface typeface = getResources().getFont(R.font.rock_salt);
+    private Bitmap mBitmapBackground = BitmapFactory.decodeResource(getResources(), R.drawable.bgred);
+
     // This is the constructor method that gets called
     // from SnakeActivity
     public SnakeGame(Context context, Point size) {
@@ -206,8 +209,9 @@ class SnakeGame extends SurfaceView implements Runnable{
         if (mSurfaceHolder.getSurface().isValid()) {
             mCanvas = mSurfaceHolder.lockCanvas();
 
-            // Fill the screen with a color
-            mCanvas.drawColor(Color.argb(255, 26, 128, 182));
+
+            mCanvas.drawBitmap(mBitmapBackground, 0, 0, null);
+            mPaint.setTypeface(typeface);
 
             // Set the size and color of the mPaint for the text
             mPaint.setColor(Color.argb(255, 255, 255, 255));
@@ -215,6 +219,8 @@ class SnakeGame extends SurfaceView implements Runnable{
 
             // Draw the score
             mCanvas.drawText("" + mScore, 20, 120, mPaint);
+
+            mCanvas.drawText("Jorge Costilla", 1350, 120, mPaint);
 
             // Draw the apple and the snake
             mApple.draw(mCanvas, mPaint);
