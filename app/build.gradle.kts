@@ -6,6 +6,10 @@ android {
     namespace = "com.example.c17snake"
     compileSdk = 34
 
+    buildFeatures {
+        viewBinding = true
+    }
+
     defaultConfig {
         applicationId = "com.example.c17snake"
         minSdk = 27

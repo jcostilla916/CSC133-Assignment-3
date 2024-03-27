@@ -10,17 +10,21 @@ import android.graphics.Canvas;
 import android.graphics.Color;
 import android.graphics.Paint;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.graphics.Typeface;
 import android.media.AudioAttributes;
 import android.media.AudioManager;
 import android.media.SoundPool;
 import android.os.Build;
+import android.util.DisplayMetrics;
 import android.view.MotionEvent;
 import android.view.SurfaceHolder;
 import android.view.SurfaceView;
+import android.widget.Button;
 import android.widget.TextView;
 
 import java.io.IOException;
+
 
 class SnakeGame extends SurfaceView implements Runnable{
 
@@ -56,6 +60,8 @@ class SnakeGame extends SurfaceView implements Runnable{
 
     private Typeface typeface = getResources().getFont(R.font.rock_salt);
     private Bitmap mBitmapBackground = BitmapFactory.decodeResource(getResources(), R.drawable.bgred);
+
+    private Rect pauseBtn = new Rect(991, 50, 1091, 150);
 
     // This is the constructor method that gets called
     // from SnakeActivity
@@ -196,7 +202,7 @@ class SnakeGame extends SurfaceView implements Runnable{
             // Pause the game ready to start again
             mSP.play(mCrashID, 1, 1, 0, 0, 1);
 
-            mPaused =true;
+            mPaused = true;
         }
 
     }
@@ -208,7 +214,6 @@ class SnakeGame extends SurfaceView implements Runnable{
         // Get a lock on the mCanvas
         if (mSurfaceHolder.getSurface().isValid()) {
             mCanvas = mSurfaceHolder.lockCanvas();
-
 
             mCanvas.drawBitmap(mBitmapBackground, 0, 0, null);
             mPaint.setTypeface(typeface);
@@ -226,9 +231,13 @@ class SnakeGame extends SurfaceView implements Runnable{
             mApple.draw(mCanvas, mPaint);
             mSnake.draw(mCanvas, mPaint);
 
+            // draw transparent 'pause' button, set mPaint back to normal after
+            mPaint.setColor(Color.argb(100, 255, 255, 255));
+            mCanvas.drawRect(pauseBtn, mPaint);
+            mPaint.setColor(Color.argb(255, 255, 255, 255));
+
             // Draw some text while paused
             if(mPaused){
-
                 // Set the size and color of the mPaint for the text
                 mPaint.setColor(Color.argb(255, 255, 255, 255));
                 mPaint.setTextSize(250);
@@ -240,8 +249,6 @@ class SnakeGame extends SurfaceView implements Runnable{
                                 getString(R.string.tap_to_play),
                         200, 700, mPaint);
             }
-
-
             // Unlock the mCanvas and reveal the graphics for this frame
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
         }
@@ -249,8 +256,15 @@ class SnakeGame extends SurfaceView implements Runnable{
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
-        switch (motionEvent.getAction() & MotionEvent.ACTION_MASK) {
-            case MotionEvent.ACTION_UP:
+        //Rect pauseBtn = new Rect(995, 150, 1095, 50);
+
+        //int i = motionEvent.getActionIndex();
+        int x = (int) motionEvent.getX();//i);
+        int y = (int) motionEvent.getY();//i);
+
+
+        int eventType = motionEvent.getAction();
+        if (eventType == MotionEvent.ACTION_UP) {
                 if (mPaused) {
                     mPaused = false;
                     newGame();
@@ -259,12 +273,19 @@ class SnakeGame extends SurfaceView implements Runnable{
                     return true;
                 }
 
-                // Let the Snake class handle the input
-                mSnake.switchHeading(motionEvent);
-                break;
-
-            default:
-                break;
+                if ((pauseBtn.contains(x, y)) && mPlaying) {
+                    mPlaying = !mPlaying;
+                    //mPaused = !mPaused;
+                    return true;
+                }
+                else if ((pauseBtn.contains(x, y)) && !mPlaying)  {
+                    resume();
+                }
+                else {
+                    // Let the Snake class handle the input
+                    mSnake.switchHeading(motionEvent);
+                    //break;
+                }
 
         }
         return true;

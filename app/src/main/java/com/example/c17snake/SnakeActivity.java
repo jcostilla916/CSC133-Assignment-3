@@ -6,11 +6,14 @@ import android.graphics.Point;
 import android.graphics.Typeface;
 import android.os.Bundle;
 import android.view.Display;
+import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.core.content.res.ResourcesCompat;
 
 import org.w3c.dom.Text;
+
+
 
 public class SnakeActivity extends Activity {
 
@@ -21,8 +24,6 @@ public class SnakeActivity extends Activity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
 
         // Get the pixel dimensions of the screen
         Display display = getWindowManager().getDefaultDisplay();
