@@ -41,6 +41,9 @@ class SnakeGame extends SurfaceView implements Runnable{
     private int mEat_ID = -1;
     private int mCrashID = -1;
 
+    private int screenWidth;
+    private int screenHeight;
+
     // The size in segments of the playable area
     private final int NUM_BLOCKS_WIDE = 40;
     private int mNumBlocksHigh;
@@ -59,7 +62,7 @@ class SnakeGame extends SurfaceView implements Runnable{
     private Apple mApple;
 
     private Typeface typeface = getResources().getFont(R.font.rock_salt);
-    private Bitmap mBitmapBackground = BitmapFactory.decodeResource(getResources(), R.drawable.bgred);
+    private Bitmap mBitmapBackground;
 
     private Rect pauseBtn = new Rect(991, 50, 1091, 150);
 
@@ -72,6 +75,10 @@ class SnakeGame extends SurfaceView implements Runnable{
         int blockSize = size.x / NUM_BLOCKS_WIDE;
         // How many blocks of the same size will fit into the height
         mNumBlocksHigh = size.y / blockSize;
+        mBitmapBackground = BitmapFactory.decodeResource(getResources(), R.drawable.bgred);
+        mBitmapBackground = Bitmap.createScaledBitmap(mBitmapBackground, size.x, size.y, false);
+        screenWidth = size.x;
+        screenHeight = size.y;
 
         // Initialize the SoundPool
         if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
@@ -210,49 +217,64 @@ class SnakeGame extends SurfaceView implements Runnable{
 
     // Do all the drawing
     public void draw() {
-        //Resources res =
-        // Get a lock on the mCanvas
         if (mSurfaceHolder.getSurface().isValid()) {
             mCanvas = mSurfaceHolder.lockCanvas();
 
+            // Draw the background
             mCanvas.drawBitmap(mBitmapBackground, 0, 0, null);
             mPaint.setTypeface(typeface);
 
             // Set the size and color of the mPaint for the text
-            mPaint.setColor(Color.argb(255, 255, 255, 255));
             mPaint.setTextSize(80);
-
+            mPaint.setColor(Color.WHITE);
             // Draw the score
             mCanvas.drawText("" + mScore, 20, 120, mPaint);
 
-            mCanvas.drawText("Jorge Costilla", 1350, 120, mPaint);
+            // Correctly position "Eva and Jorge" text towards the right
+            float nameTextWidth = mPaint.measureText("Eva and Jorge");
+            mCanvas.drawText("Eva and Jorge", screenWidth - nameTextWidth - 20, 120, mPaint);
 
             // Draw the apple and the snake
             mApple.draw(mCanvas, mPaint);
             mSnake.draw(mCanvas, mPaint);
 
-            // draw transparent 'pause' button, set mPaint back to normal after
-            mPaint.setColor(Color.argb(100, 255, 255, 255));
+            // Define the pause/resume button characteristics
+            mPaint.setTextSize(40); // Set text size for the button text
+            String buttonText = mPlaying && !mPaused ? "Pause" : "Resume";
+            float buttonTextWidth = mPaint.measureText(buttonText);
+            float buttonTextX = pauseBtn.centerX() - (buttonTextWidth / 2);
+            float buttonTextY = pauseBtn.centerY() - ((mPaint.descent() + mPaint.ascent()) / 2);
+
+            // Adjust the pauseBtn rectangle dynamically based on the text it contains
+            // This ensures the text fits well within the button
+            pauseBtn.left = (int) (screenWidth / 2 - buttonTextWidth / 2 - 20); // 20 pixels padding
+            pauseBtn.right = (int) (pauseBtn.left + buttonTextWidth + 40); // 40 pixels total padding
+
+            // Draw the semi-transparent rectangle for the button
+            mPaint.setColor(Color.argb(128, 255, 255, 255)); // Semi-transparent white for the button background
             mCanvas.drawRect(pauseBtn, mPaint);
-            mPaint.setColor(Color.argb(255, 255, 255, 255));
 
-            // Draw some text while paused
-            if(mPaused){
-                // Set the size and color of the mPaint for the text
-                mPaint.setColor(Color.argb(255, 255, 255, 255));
-                mPaint.setTextSize(250);
+            // Draw the button text
+            mPaint.setColor(Color.BLACK); // Black color for text
+            mCanvas.drawText(buttonText, buttonTextX, buttonTextY, mPaint);
 
-                // Draw the message
-                // We will give this an international upgrade soon
-                //mCanvas.drawText("Tap To Play!", 200, 700, mPaint);
-                mCanvas.drawText(getResources().
-                                getString(R.string.tap_to_play),
-                        200, 700, mPaint);
+            // If the game is paused, show "Tap to Play"
+            if (mPaused) {
+                mPaint.setColor(Color.WHITE); // White color for "Tap to Play"
+                mPaint.setTextSize(150);
+                String tapToPlay = "Tap to Play"; // Text for starting the game
+                float tapPlayTextWidth = mPaint.measureText(tapToPlay);
+                float startX = (screenWidth - tapPlayTextWidth) / 2;
+                float startY = screenHeight / 2;
+                mCanvas.drawText(tapToPlay, startX, startY, mPaint);
             }
-            // Unlock the mCanvas and reveal the graphics for this frame
+
+            // Unlock the canvas and reveal the graphics for this frame
             mSurfaceHolder.unlockCanvasAndPost(mCanvas);
         }
     }
+
+
 
     @Override
     public boolean onTouchEvent(MotionEvent motionEvent) {
