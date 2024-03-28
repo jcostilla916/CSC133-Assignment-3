@@ -19,4 +19,4 @@ Our objective is to meet the requirements outlined for the assignment while enha
 
 Let's work together to create an outstanding Snake game implementation while mastering essential software development practices!
 
-##Update: We were able to finish the Project in given timeline and it is fully functional. 
+## Update: We were able to finish the Project in given timeline and it is fully functional. 
